@@ -1,7 +1,7 @@
 {
   "name": "moviesearcher",
   "version": "0.1.0",
-  "homepage": "https://github.com/vpmew/moviesearcher",
+  "homepage": "https://vpmew.github.io/moviesearcher/",
   "private": true,
   "dependencies": {
     "gh-pages": "^2.0.1",
