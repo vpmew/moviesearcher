@@ -17,6 +17,8 @@ const FooterStructure = ({ className }) => {
         <span className="organisation">
           Verstka-thread technologies, 2015-2019.
         </span>
+
+        <span className="version">{`Version: ${variables.version}`}</span>
       </p>
     </footer>
   );
@@ -36,7 +38,8 @@ const Footer = styled(FooterStructure)`
     margin-bottom: 5px;
   }
 
-  & .organisation {
+  & .organisation,
+  & .version {
     font-size: 0.8em;
   }
 

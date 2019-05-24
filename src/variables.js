@@ -1,4 +1,6 @@
 const variables = {
+  version: "1.0.1",
+
   widthS: "320px",
   widthM: "768px",
   widthL: "991px",

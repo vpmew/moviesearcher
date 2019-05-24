@@ -171,7 +171,7 @@ class App extends Component {
         filteredMoviesPage: 1,
         loading: false
       });
-    } else return;
+    }
   }, 1500);
 
   getMoreFilteredMovies = () => {
@@ -183,18 +183,43 @@ class App extends Component {
       }
     }
     let enabledGenreIds = encodeURIComponent(enabledGenres.join(",")),
-      sortBy = this.state.sortBy,
-      page = this.state.filteredMoviesPage;
+      page = this.state.filteredMoviesPage,
+      sortBy;
+    if (this.state.sortBy === "popularity") {
+      sortBy =
+        this.state.direction === "descending"
+          ? "popularity.desc"
+          : "popularity.asc";
+    }
+    if (this.state.sortBy === "date") {
+      sortBy =
+        this.state.direction === "descending"
+          ? "release_date.desc"
+          : "release_date.asc";
+    }
+    if (this.state.sortBy === "rating") {
+      sortBy =
+        this.state.direction === "descending"
+          ? "vote_average.desc"
+          : "vote_average.asc";
+    }
+    if (this.state.sortBy === "votes") {
+      sortBy =
+        this.state.direction === "descending"
+          ? "vote_count.desc"
+          : "vote_count.asc";
+    }
     fetch(
-      `https://api.themoviedb.org/3/discover/movie?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US&sort_by=${sortBy}&include_adult=false&include_video=false&page=${page}&with_genres=${enabledGenreIds}`
+      `https://api.themoviedb.org/3/discover/movie?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US&sort_by=${sortBy}&include_adult=false&include_video=false&page=${++page}&with_genres=${enabledGenreIds}`
     )
       .then(response => {
         return response.json();
       })
       .then(({ results }) => {
-        this.setState((prevState, props) => ({
+        console.log(results);
+        this.setState(prevState => ({
           filteredMovies: [...prevState.filteredMovies].concat(results),
-          filteredMoviesPage: prevState.filteredMoviesPage++,
+          filteredMoviesPage: ++prevState.filteredMoviesPage,
           loading: false
         }));
       })
@@ -236,7 +261,7 @@ class App extends Component {
   getFavFilms = () => {
     if (localStorage["favorites"]) {
       this.setState({ favorites: [...JSON.parse(localStorage["favorites"])] });
-    } else return;
+    }
   };
 
   toggleFilmToFav = event => {
@@ -291,7 +316,7 @@ class App extends Component {
         .catch(error => {
           alert(`Error on loading film data: ${error}`);
         });
-    } else return;
+    }
   };
 
   getSimilarFilms = filmId => {

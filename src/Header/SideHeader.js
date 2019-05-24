@@ -26,7 +26,7 @@ const HeaderStructure = ({
 }) => {
   return (
     <header className={className}>
-      <h1>Moviesearcher v1.0.0</h1>
+      <h1>Moviesearcher</h1>
       <SearchBlock
         searchValue={searchValue}
         searching={searching}
