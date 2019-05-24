@@ -15,18 +15,6 @@ class FilmPageStructure extends React.Component {
     this.props.getSimilarFilms(Number(this.props.location.pathname.slice(11)));
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   let result;
-  //   if (this.props.location.pathname !== nextProps.location.pathname) {
-  //     result = true;
-  //     console.log(result);
-  //     return result;
-  //   }
-  //   result = false;
-  //   console.log(result);
-  //   return result;
-  // }
-
   componentDidUpdate(nextProps) {
     if (this.props.location.pathname !== nextProps.location.pathname) {
       this.props.loadFilmData(Number(this.props.location.pathname.slice(11)));
@@ -111,11 +99,14 @@ class FilmPageStructure extends React.Component {
     let homepage = filmData.homepage;
     let runtime = filmData.runtime && convertRuntime(filmData.runtime);
     let tagline = filmData.tagline;
-    let voteAverage =
-      String(filmData.vote_average).length === 1
-        ? [...String(filmData.vote_average).split(""), ".", "0"].join("")
-        : filmData.vote_average;
-    let voteCount = filmData.vote_count;
+    let voteAverage, voteCount;
+    if (filmData.vote_average) {
+      voteAverage =
+        String(filmData.vote_average).length === 1
+          ? [...String(filmData.vote_average).split(""), ".", "0"].join("")
+          : filmData.vote_average;
+      voteCount = filmData.vote_count;
+    }
 
     return filmData ? (
       <main className={className}>
@@ -132,10 +123,12 @@ class FilmPageStructure extends React.Component {
             }
             alt={filmData.title || "No title."}
           />
-          <div className="wrapper">
-            {voteAverage && <p className="vote-avg">{voteAverage}</p>}
-            {voteCount && <p className="vote-count">{voteCount} votes</p>}
-          </div>
+          {voteAverage && (
+            <div className="wrapper">
+              {voteAverage && <p className="vote-avg">{voteAverage}</p>}
+              {voteCount && <p className="vote-count">{voteCount} votes</p>}
+            </div>
+          )}
           <div className="widgets">
             <button
               className="toFav"
