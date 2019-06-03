@@ -1,31 +1,26 @@
 import React from "react";
 import styled from "styled-components";
 import FilmList from "../UI/FilmList";
-import Button from "../UI/Button";
-import variables from "../variables";
+import variables from "../utilities/variables";
+import StateContext from "../StateContext";
 
-const FilteredFilmsStructure = ({
-  filteredMovies,
-  toggleFilmToFav,
-  getMoreFilteredMovies,
-  nightmode,
-  genres,
-  favorites,
-  className
-}) => (
-  <section className={className}>
-    <h2>Films by filters</h2>
-    <FilmList
-      nightmode={nightmode}
-      matchFilms={filteredMovies}
-      toggleFilmToFav={toggleFilmToFav}
-      genres={genres}
-      favorites={favorites}
-    />
-    <Button nightmode={nightmode} onClick={getMoreFilteredMovies}>
-      Load more
-    </Button>
-  </section>
+const FilteredFilmsStructure = ({ className }) => (
+  <StateContext.Consumer>
+    {({ nightModeIsOn, filteredMovies, genres, favorites, methods }) => (
+      <section className={className}>
+        <h2>Films by filters</h2>
+        <FilmList
+          nightmode={nightModeIsOn}
+          matchFilms={filteredMovies}
+          toggleFilmToFav={methods.toggleFilmToFav}
+          genres={genres}
+          favorites={favorites}
+          autoLoading={methods.autoLoading}
+          autoLoadingFunction={methods.getMoreFilteredMovies}
+        />
+      </section>
+    )}
+  </StateContext.Consumer>
 );
 
 const FilteredFilms = styled(FilteredFilmsStructure)`
@@ -37,19 +32,6 @@ const FilteredFilms = styled(FilteredFilmsStructure)`
   & h2 {
     text-align: center;
     width: 100%;
-  }
-
-  & ul {
-    max-height: 360px;
-    overflow-y: scroll;
-    border: 2px solid
-      ${props =>
-        props.nightmode ? variables.fontColorLight : variables.fontColorDark};
-    box-shadow: none;
-
-    & li:last-child {
-      border-bottom: none;
-    }
   }
 
   & button {

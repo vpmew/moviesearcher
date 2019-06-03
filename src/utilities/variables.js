@@ -1,5 +1,5 @@
 const variables = {
-  version: "1.0.2",
+  version: "2.0.0",
 
   widthS: "320px",
   widthM: "768px",
@@ -7,18 +7,14 @@ const variables = {
 
   backgroundColorLight: "#E9F7F9",
   backgroundColorDark: "#0C2427",
-  fontColorLight: /* "#E9F7F9" */ "#FFE4AA",
+  fontColorLight: "#FFE4AA",
   fontColorDark: "#0C2427",
-  // elementsColor: "#EBDDEE",
 
   fontSizeS: "14px",
-  // lineHeightS: "1.4em",
   lineHeightS: "20px",
   fontSizeM: "22px",
-  // lineHeightM: "1.4em",
   lineHeightM: "28px",
   fontSizeL: "22px",
-  // lineHeightL: "1.4em"
   lineHeightL: "28px"
 };
 

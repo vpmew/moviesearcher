@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import variables from "../variables";
+import variables from "../utilities/variables";
 import nmLight from "../img/nm-light.svg";
 import nmDark from "../img/nm-dark.svg";
 

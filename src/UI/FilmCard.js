@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import React from "react";
 import img404 from "../img/img404.jpg";
-import variables from "../variables";
+import variables from "../utilities/variables";
 import heartIcoLight from "../img/heart-off-light.svg";
 import heartIcoDark from "../img/heart-off-dark.svg";
 import heartIcoActive from "../img/heart-on.svg";
@@ -76,7 +76,7 @@ const FilmCardStructure = ({
       </div>
       <p>
         {title ? (
-          <Link to={`/filmpages/${id}`}>
+          <Link to={`/filmpage/${id}`}>
             <span className="title">{croppedTitle ? croppedTitle : title}</span>
           </Link>
         ) : (
@@ -105,16 +105,17 @@ const FilmCardStructure = ({
       </p>
       <button
         className="toFav"
-        value={JSON.stringify({
-          id,
-          poster_path,
-          title,
-          release_date,
-          vote_average,
-          vote_count,
-          genresOfFilm
-        })}
-        onClick={toggleFilmToFav}
+        onClick={() => {
+          toggleFilmToFav({
+            id,
+            poster_path,
+            title,
+            release_date,
+            vote_average,
+            vote_count,
+            genresOfFilm
+          });
+        }}
       />
     </li>
   );

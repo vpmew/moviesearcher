@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import variables from "../variables";
+import variables from "../utilities/variables";
 
 const LoadingStructure = ({ children, className }) => (
   <div className={className}>

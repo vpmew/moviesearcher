@@ -1,122 +1,122 @@
 import React from "react";
 import styled from "styled-components";
-import variables from "../variables";
+import variables from "../utilities/variables";
 import InfoMessage from "../UI/InfoMessage";
+import { debounce } from "lodash";
+import StateContext from "../StateContext";
 
-const FiltersStructure = ({
-  genres,
-  toggleGenre,
-  sortBy,
-  toggleSorting,
-  direction,
-  toggleDirection,
-  sortingOptions,
-  className,
-  getFilteredMovies
-}) => {
-  let genreList = Object.keys(genres);
-  let genresIsChecked = false;
-  for (let key in genres) {
-    if (genres[key].enabled === true) {
-      genresIsChecked = true;
-      break;
-    }
-  }
-  return (
-    <form className={className}>
-      {!genresIsChecked ? (
-        <InfoMessage color="orangered" width="100%" margin="0 auto 5px">
-          Please, choose at least one genre to see results below.
-        </InfoMessage>
-      ) : null}
-      <fieldset className="genres">
-        <legend>Genres:</legend>
-        <div className="fieldsetFlexFix">
-          {genreList.map(name => (
-            <label
-              className={`${name.replace(" ", "-").toLowerCase()}`}
-              key={genres[name].id}
-            >
-              <input
-                onChange={event => {
-                  toggleGenre(event);
-                  getFilteredMovies();
-                }}
-                type="checkbox"
-                name={name}
-                checked={genres[name].enabled}
-              />
-              <span>{name}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+const FiltersStructure = ({ className }) => (
+  <StateContext.Consumer>
+    {({ genres, sortingOptions, sortBy, direction, methods }) => {
+      let genreList = Object.keys(genres);
+      let genresIsChecked = false;
+      for (let key in genres) {
+        if (genres[key].enabled === true) {
+          genresIsChecked = true;
+          break;
+        }
+      }
+      let getFilteredMoviesWithDebounce = debounce(
+        methods.getFilteredMovies,
+        1500
+      );
+      return (
+        <form className={className}>
+          {!genresIsChecked ? (
+            <InfoMessage color="orangered" width="100%" margin="0 auto 5px">
+              Please, choose at least one genre to see results below.
+            </InfoMessage>
+          ) : null}
+          <fieldset className="genres">
+            <legend>Genres:</legend>
+            <div className="fieldsetFlexFix">
+              {genreList.map(name => (
+                <label
+                  className={`${name.replace(" ", "-").toLowerCase()}`}
+                  key={genres[name].id}
+                >
+                  <input
+                    onChange={event => {
+                      methods.toggleGenre(event);
+                      getFilteredMoviesWithDebounce();
+                    }}
+                    type="checkbox"
+                    name={name}
+                    checked={genres[name].enabled}
+                  />
+                  <span>{name}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
-      <fieldset className="sort-by">
-        <legend>Sort by:</legend>
-        <div className="fieldsetFlexFix">
-          {sortingOptions.map(option => {
-            return (
-              <label key={option}>
+          <fieldset className="sort-by">
+            <legend>Sort by:</legend>
+            <div className="fieldsetFlexFix">
+              {sortingOptions.map(option => {
+                return (
+                  <label key={option}>
+                    <input
+                      type="radio"
+                      name="sortBy"
+                      value={option}
+                      checked={option === sortBy}
+                      onChange={event => {
+                        methods.toggleSorting(event);
+                        setTimeout(() => methods.getFilteredMovies(), 0);
+                      }}
+                    />
+                    <span>
+                      {(option => {
+                        let arr = option.split("");
+                        let str;
+                        arr[0] = arr[0].toUpperCase();
+                        str = arr.join("");
+                        return str;
+                      })(option)}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <fieldset className="direction">
+            <legend>Direction:</legend>
+            <div className="fieldsetFlexFix">
+              <label>
                 <input
                   type="radio"
-                  name="sortBy"
-                  value={option}
-                  checked={option === sortBy}
+                  name="direction"
+                  value="ascending"
+                  checked={direction === "ascending"}
                   onChange={event => {
-                    toggleSorting(event);
-                    setTimeout(() => getFilteredMovies(), 0);
+                    methods.toggleDirection(event);
+                    setTimeout(() => methods.getFilteredMovies(), 0);
                   }}
                 />
-                <span>
-                  {(option => {
-                    let arr = option.split("");
-                    let str;
-                    arr[0] = arr[0].toUpperCase();
-                    str = arr.join("");
-                    return str;
-                  })(option)}
-                </span>
+                <span>Ascending</span>
               </label>
-            );
-          })}
-        </div>
-      </fieldset>
-
-      <fieldset className="direction">
-        <legend>Direction:</legend>
-        <div className="fieldsetFlexFix">
-          <label>
-            <input
-              type="radio"
-              name="direction"
-              value="ascending"
-              checked={direction === "ascending"}
-              onChange={event => {
-                toggleDirection(event);
-                setTimeout(() => getFilteredMovies(), 0);
-              }}
-            />
-            <span>Ascending</span>
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="direction"
-              value="descending"
-              checked={direction === "descending"}
-              onChange={event => {
-                toggleDirection(event);
-                setTimeout(() => getFilteredMovies(), 0);
-              }}
-            />
-            <span>Descending</span>
-          </label>
-        </div>
-      </fieldset>
-    </form>
-  );
-};
+              <label>
+                <input
+                  type="radio"
+                  name="direction"
+                  value="descending"
+                  checked={direction === "descending"}
+                  onChange={event => {
+                    methods.toggleDirection(event);
+                    setTimeout(() => methods.getFilteredMovies(), 0);
+                  }}
+                />
+                <span>Descending</span>
+              </label>
+            </div>
+          </fieldset>
+        </form>
+      );
+    }}
+  </StateContext.Consumer>
+);
 
 const Filters = styled(FiltersStructure)`
   display: flex;
@@ -178,7 +178,6 @@ const Filters = styled(FiltersStructure)`
           position: absolute;
           top: 8px;
           left: 0;
-          /* z-index: 1; */
           width: 16px;
           height: 16px;
           border: 2px solid

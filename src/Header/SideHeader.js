@@ -6,57 +6,52 @@ import SearchBlock from "./SearchBlock";
 import { Link } from "react-router-dom";
 import homeIcoLight from "../img/home-ico-light.svg";
 import homeIcoDark from "../img/home-ico-dark.svg";
-import variables from "../variables";
+import variables from "../utilities/variables";
+import StateContext from "../StateContext";
 
-const HeaderStructure = ({
-  searchValue,
-  searching,
-  matchFilms,
-  genres,
-  favorites,
-  nightModeIsOn,
-  toggleNightMode,
-  searchFilms,
-  changeSearchValue,
-  enableSearching,
-  disableSearching,
-  toggleFilmToFav,
-  className,
-  loading
-}) => {
+const HeaderStructure = ({ className }) => {
   return (
-    <header className={className}>
-      <h1>Moviesearcher</h1>
-      <SearchBlock
-        searchValue={searchValue}
-        searching={searching}
-        enableSearching={enableSearching}
-        disableSearching={disableSearching}
-        changeSearchValue={changeSearchValue}
-        searchFilms={searchFilms}
-        matchFilms={matchFilms}
-        nightmode={nightModeIsOn}
-        genres={genres}
-        toggleFilmToFav={toggleFilmToFav}
-        favorites={favorites}
-        loading={loading}
-      />
-      <ButtonsBlock justify="flex-end">
-        <Button
-          as={Link}
-          name="Main"
-          nightmode={nightModeIsOn}
-          to="/"
-          width="calc(33% / 2)"
-          image={nightModeIsOn ? homeIcoLight : homeIcoDark}
-        />
-        <Button
-          name="Night mode"
-          onClick={toggleNightMode}
-          nightmode={nightModeIsOn}
-        />
-      </ButtonsBlock>
-    </header>
+    <StateContext.Consumer>
+      {({
+        nightModeIsOn,
+        searching,
+        searchValue,
+        loading,
+        matchFilms,
+        genres,
+        favorites,
+        methods
+      }) => (
+        <header className={className}>
+          <h1>Moviesearcher</h1>
+          <SearchBlock
+            searchValue={searchValue}
+            searching={searching}
+            matchFilms={matchFilms}
+            nightmode={nightModeIsOn}
+            loading={loading}
+            genres={genres}
+            favorites={favorites}
+            methods={methods}
+          />
+          <ButtonsBlock justify="flex-end">
+            <Button
+              as={Link}
+              name="Main"
+              nightmode={nightModeIsOn}
+              to="/"
+              width="calc(33% / 2)"
+              image={nightModeIsOn ? homeIcoLight : homeIcoDark}
+            />
+            <Button
+              name="Night mode"
+              onClick={methods.toggleNightMode}
+              nightmode={nightModeIsOn}
+            />
+          </ButtonsBlock>
+        </header>
+      )}
+    </StateContext.Consumer>
   );
 };
 

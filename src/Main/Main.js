@@ -2,48 +2,34 @@ import React from "react";
 import styled from "styled-components";
 import BestFilms from "./BestFilms";
 import FilteredFilms from "./FilteredFilms";
-import variables from "../variables";
+import variables from "../utilities/variables";
+import StateContext from "../StateContext";
 
-const MainStructure = ({
-  bestMovies,
-  openedMenuName,
-  menuIsOpen,
-  toggleFilmToFav,
-  filteredMovies,
-  getMoreFilteredMovies,
-  nightModeIsOn,
-  getBestMovies,
-  genres,
-  favorites,
-  className
-}) =>
-  (filteredMovies.length > 0 || bestMovies.length > 0) &&
-  !(openedMenuName === "Profile" && menuIsOpen) && (
-    <main className={className}>
-      {filteredMovies.length < 1 ? null : openedMenuName === "Profile" &&
-        menuIsOpen ? null : (
-        <FilteredFilms
-          filteredMovies={filteredMovies}
-          toggleFilmToFav={toggleFilmToFav}
-          getMoreFilteredMovies={getMoreFilteredMovies}
-          nightmode={nightModeIsOn}
-          genres={genres}
-          favorites={favorites}
-        />
-      )}
-      {bestMovies.length < 1 ? null : openedMenuName === "Profile" &&
-        menuIsOpen ? null : (
-        <BestFilms
-          bestMovies={bestMovies}
-          toggleFilmToFav={toggleFilmToFav}
-          getBestMovies={getBestMovies}
-          nightmode={nightModeIsOn}
-          genres={genres}
-          favorites={favorites}
-        />
-      )}
-    </main>
-  );
+const MainStructure = ({ className }) => (
+  <StateContext.Consumer>
+    {({
+      filteredMovies,
+      bestMovies,
+      openedMenuName,
+      menuIsOpen,
+      nightModeIsOn
+    }) =>
+      (filteredMovies.length > 0 || bestMovies.length > 0) &&
+      !(openedMenuName === "Profile" && menuIsOpen) && (
+        <main className={className}>
+          {filteredMovies.length < 1 ? null : openedMenuName === "Profile" &&
+            menuIsOpen ? null : (
+            <FilteredFilms nightmode={nightModeIsOn} />
+          )}
+          {bestMovies.length < 1 ? null : openedMenuName === "Profile" &&
+            menuIsOpen ? null : (
+            <BestFilms nightmode={nightModeIsOn} />
+          )}
+        </main>
+      )
+    }
+  </StateContext.Consumer>
+);
 
 const Main = styled(MainStructure)`
   position: relative;

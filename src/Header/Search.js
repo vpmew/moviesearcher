@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import variables from "../variables";
+import variables from "../utilities/variables";
 
 const Search = styled.input`
   width: 100%;

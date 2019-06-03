@@ -2,40 +2,38 @@ import styled from "styled-components";
 import React from "react";
 import FilmList from "../UI/FilmList";
 import Search from "./Search";
-import variables from "../variables";
+import variables from "../utilities/variables";
 
 const SearchBlockStructure = ({
-  searchValue,
-  searching,
-  searchFilms,
-  enableSearching,
-  disableSearching,
-  changeSearchValue,
-  matchFilms,
   className,
+  searching,
+  searchValue,
+  loading,
   nightmode,
+  matchFilms,
   genres,
-  toggleFilmToFav,
   favorites,
-  loading
+  methods
 }) => {
+  let _input;
   return (
     <div className={className}>
       {searching && searchValue && !loading ? (
-        <div className="overlay" onClick={disableSearching} />
+        <div className="overlay" onClick={methods.disableSearching} />
       ) : null}
       <div className="wrapper">
         <Search
           placeholder="Find a movie..."
           value={searchValue}
+          ref={input => (_input = input)}
           onChange={event => {
-            changeSearchValue(event);
-            setTimeout(() => searchFilms(), 0);
+            methods.changeSearchValue(event);
+            setTimeout(() => methods.searchFilms(), 0);
           }}
-          onClick={enableSearching}
+          onClick={methods.enableSearching}
           onKeyDown={e => {
             if (e.keyCode === 27) {
-              disableSearching();
+              methods.disableSearching();
               e.target.blur();
             }
           }}
@@ -44,11 +42,11 @@ const SearchBlockStructure = ({
         />
         {searching && searchValue ? (
           <button
-            className="closeButton"
+            className="clearButton"
             type="button"
-            onClick={disableSearching}
+            onClick={() => methods.clearSearchValue(_input)}
           >
-            Close
+            Clear
           </button>
         ) : null}
         {searching && matchFilms ? (
@@ -56,7 +54,7 @@ const SearchBlockStructure = ({
             matchFilms={matchFilms}
             nightmode={nightmode}
             genres={genres}
-            toggleFilmToFav={toggleFilmToFav}
+            toggleFilmToFav={methods.toggleFilmToFav}
             favorites={favorites}
           />
         ) : null}
@@ -86,7 +84,58 @@ const SearchBlock = styled(SearchBlockStructure)`
     z-index: 2;
   }
 
-  & .closeButton {
+  & .clearButton {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+    height: 30px;
+    width: 50px;
+    border: none;
+    background: transparent;
+    font-size: inherit;
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  & ul {
+    overflow-y: scroll;
+    position: absolute;
+    top: 100%;
+    right: 0;
+  }
+
+  @media (min-width: ${variables.widthM}) {
+    width: 60%;
+
+    & .clearButton {
+      top: 7px;
+      width: 70px;
+    }
+  }
+
+  @media (min-width: ${variables.widthL}) {
+    width: 45%;
+    margin-top: auto;
+    margin-bottom: auto;
+
+    & .clearButton {
+      top: 10px;
+    }
+  }
+`;
+
+export default SearchBlock;
+
+/* <button
+    className="closeButton"
+    type="button"
+    onClick={toggleSearching}
+  >
+    Close
+  </button> */
+
+/* & .closeButton {
     position: absolute;
     right: 10px;
     top: 5px;
@@ -114,32 +163,4 @@ const SearchBlock = styled(SearchBlockStructure)`
     &::after {
       transform: rotate(45deg);
     }
-  }
-
-  & ul {
-    overflow-y: scroll;
-    position: absolute;
-    top: 100%;
-    right: 0;
-  }
-
-  @media (min-width: ${variables.widthM}) {
-    width: 60%;
-
-    & .closeButton {
-      top: 7px;
-    }
-  }
-
-  @media (min-width: ${variables.widthL}) {
-    width: 45%;
-    margin-top: auto;
-    margin-bottom: auto;
-
-    & .closeButton {
-      top: 10px;
-    }
-  }
-`;
-
-export default SearchBlock;
+  } */

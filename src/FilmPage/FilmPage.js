@@ -1,40 +1,57 @@
 import React from "react";
 import styled from "styled-components";
 import img404 from "../img/img404.jpg";
-import variables from "../variables";
-import heartIcoLight from "../img/heart-off-light.svg";
-import heartIcoDark from "../img/heart-off-dark.svg";
-import heartIcoActive from "../img/heart-on.svg";
+import variables from "../utilities/variables";
 import InfoMessage from "../UI/InfoMessage";
 import SimilarFilms from "./SimilarFilms";
-import Helmet from "react-helmet";
+import Rating from "./Rating";
+import Tagline from "./Tagline";
+import FavButton from "./FavButton";
+import StateContext from "../StateContext";
+
+// const ref = React.createRef();
 
 class FilmPageStructure extends React.Component {
+  static contextType = StateContext;
+
+  ref = React.createRef();
+
   componentDidMount() {
-    this.props.loadFilmData(Number(this.props.location.pathname.slice(11)));
-    this.props.getSimilarFilms(Number(this.props.location.pathname.slice(11)));
+    window.scrollTo(0, 0);
+    this.context.methods.loadFilmData(
+      Number(this.props.location.pathname.slice(10))
+    );
+    this.context.methods.getSimilarFilms(
+      Number(this.props.location.pathname.slice(10)),
+      this.context.filmData.id
+    );
   }
 
-  componentDidUpdate(nextProps) {
-    if (this.props.location.pathname !== nextProps.location.pathname) {
-      this.props.loadFilmData(Number(this.props.location.pathname.slice(11)));
-      this.props.getSimilarFilms(
-        Number(this.props.location.pathname.slice(11))
+  componentDidUpdate(prevProps) {
+    if (this.props.location.pathname !== prevProps.location.pathname) {
+      window.scrollTo(0, 0);
+      // console.log(this.ref);
+      this.ref.current.scrollTop = 0;
+      this.context.methods.loadFilmData(
+        Number(this.props.location.pathname.slice(10))
+      );
+      this.context.methods.getSimilarFilms(
+        Number(this.props.location.pathname.slice(10))
       );
     }
   }
 
   render() {
+    let { className } = this.props;
     let {
-      toggleFilmToFav,
-      nightmode,
+      filmData,
+      nightModeIsOn,
       favorites,
-      genres,
-      className,
       similarFilms,
-      getMoreSimilarFilms,
-      filmData
-    } = this.props;
+      genres,
+      methods
+    } = this.context;
+
     let convertRuntime = runtime => {
       if (runtime < 60) {
         let str = runtime + " minutes.";
@@ -110,9 +127,8 @@ class FilmPageStructure extends React.Component {
 
     return filmData ? (
       <main className={className}>
-        <Helmet title={this.props.filmData.title} />
         <h2 className="title">{filmData.title || "No title."}</h2>
-        {tagline && <p className="tagline">{tagline}</p>}
+        {tagline && <Tagline nightmode={nightModeIsOn}>{tagline}</Tagline>}
         <div className="poster-block">
           <img
             className="image"
@@ -124,24 +140,28 @@ class FilmPageStructure extends React.Component {
             alt={filmData.title || "No title."}
           />
           {voteAverage && (
-            <div className="wrapper">
-              {voteAverage && <p className="vote-avg">{voteAverage}</p>}
-              {voteCount && <p className="vote-count">{voteCount} votes</p>}
-            </div>
+            <Rating
+              voteAverage={voteAverage}
+              voteCount={voteCount}
+              nightmode={nightModeIsOn}
+            />
           )}
           <div className="widgets">
-            <button
-              className="toFav"
-              value={JSON.stringify({
-                id: filmData.id,
-                poster_path: filmData.poster_path,
-                title: filmData.title,
-                release_date: filmData.release_date,
-                vote_average: filmData.vote_average,
-                vote_count: filmData.vote_count,
-                genresOfFilm: genresList
-              })}
-              onClick={toggleFilmToFav}
+            <FavButton
+              onClick={() => {
+                methods.toggleFilmToFav({
+                  id: filmData.id,
+                  poster_path: filmData.poster_path,
+                  title: filmData.title,
+                  release_date: filmData.release_date,
+                  vote_average: filmData.vote_average,
+                  vote_count: filmData.vote_count,
+                  genresOfFilm: genresList
+                });
+              }}
+              favorites={favorites}
+              filmData={filmData}
+              nightmode={nightModeIsOn}
             />
             <InfoMessage color="orangered" width="75%">
               Estimating is unavailable at the moment.
@@ -194,13 +214,16 @@ class FilmPageStructure extends React.Component {
         </div>
         {similarFilms.length > 0 && (
           <SimilarFilms
-            id={filmData.id}
+            ref={this.ref}
+            id={Number(this.props.location.pathname.slice(10))}
+            prevId={filmData.id}
             similarFilms={similarFilms}
-            toggleFilmToFav={toggleFilmToFav}
-            nightmode={nightmode}
+            toggleFilmToFav={methods.toggleFilmToFav}
+            nightmode={nightModeIsOn}
             genres={genres}
             favorites={favorites}
-            getMoreSimilarFilms={getMoreSimilarFilms}
+            getSimilarFilms={methods.getSimilarFilms}
+            autoLoading={methods.autoLoading}
           />
         )}
       </main>
@@ -217,67 +240,6 @@ const FilmPage = styled(FilmPageStructure)`
 
   & .poster-block {
     position: relative;
-
-    & .wrapper {
-      position: absolute;
-      right: 0;
-      top: 5%;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      padding: 5px;
-      background-color: ${props =>
-        props.nightmode
-          ? variables.backgroundColorDark
-          : variables.fontColorDark};
-
-      & .vote-avg {
-        margin: 0;
-        margin-bottom: 10px;
-        font-size: 2em;
-        color: ${props =>
-          props.filmData.vote_average >= 7
-            ? "mediumseagreen"
-            : props.filmData.vote_average >= 5
-            ? "#f3f300"
-            : props.filmData.vote_average >= 3
-            ? "orange"
-            : "orangered"};
-      }
-
-      & .vote-count {
-        margin: 0;
-        align-self: flex-end;
-        color: ${props =>
-          props.nightmode
-            ? variables.fontColorLight
-            : variables.backgroundColorLight};
-        font-size: 1em;
-      }
-
-      &:hover {
-        opacity: 0.2;
-      }
-    }
-  }
-
-  & .tagline {
-    margin-top: 0;
-    width: 100%;
-    position: relative;
-    font-style: italic;
-    padding-left: 10px;
-
-    &::after {
-      content: "";
-      position: absolute;
-      width: 2px;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      background-color: ${props =>
-        props.nightmode ? variables.fontColorLight : variables.fontColorDark};
-    }
   }
 
   & .option-name {
@@ -302,35 +264,6 @@ const FilmPage = styled(FilmPageStructure)`
   & .widgets {
     display: flex;
     flex-flow: row wrap;
-
-    & .toFav {
-      width: 25%;
-      height: auto;
-      padding: 0;
-      border: none;
-      background-repeat: no-repeat;
-      background-size: 80% 80%;
-      background-position: 50% 50%;
-      background-color: transparent;
-      background-image: ${props =>
-        props.favorites.some(
-          film => Number(film.id) === Number(props.filmData.id)
-        )
-          ? `url(${heartIcoActive})`
-          : props.nightmode
-          ? `url(${heartIcoLight})`
-          : `url(${heartIcoDark})`};
-      cursor: pointer;
-      &:hover {
-        background-size: 90% 90%;
-        opacity: ${props =>
-          props.favorites.some(
-            film => Number(film.id) === Number(props.filmData.id)
-          )
-            ? "0.5"
-            : "1"};
-      }
-    }
   }
 
   @media (min-width: ${variables.widthM}) {
@@ -357,13 +290,6 @@ const FilmPage = styled(FilmPageStructure)`
     & .widgets {
       & p {
         font-size: 0.8em;
-      }
-
-      & .toFav {
-        background-size: 70% 70%;
-        &:hover {
-          background-size: 80% 80%;
-        }
       }
     }
   }

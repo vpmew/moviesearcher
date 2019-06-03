@@ -1,17 +1,15 @@
 import React, { Component } from "react";
 import Loading from "./UI/Loading";
-import MainHeader from "./Header/MainHeader";
-import SideHeader from "./Header/SideHeader";
-import Main from "./Main/Main";
 import Footer from "./Footer/Footer";
 import Body from "./UI/Body";
 import WidthContainer from "./UI/WidthContainer";
-import FilmPage from "./FilmPage/FilmPage";
-import { sortByRelevance } from "./sorting";
-import { Route, Switch } from "react-router-dom";
+import { sortByRelevance } from "./utilities/sorting";
 import defaultAvatar from "./img/default-avatar.jpg";
 import { debounce } from "lodash";
 import Helmet from "react-helmet";
+import apiQueries from "./utilities/apiQueries";
+import RoutingComponent from "./RoutingComponent";
+import StateContext from "./StateContext";
 
 class App extends Component {
   state = {
@@ -46,13 +44,97 @@ class App extends Component {
 
     filmData: {},
     similarFilms: [],
-    similarFilmsPage: 1
+    similarFilmsPage: 1,
+
+    methods: {
+      autoLoading: (target, func) => {
+        this.autoLoading(target, func);
+      },
+      getSortingOption: () => {
+        this.getSortingOption();
+      },
+      toggleGenre: event => {
+        this.toggleGenre(event);
+      },
+      toggleSorting: event => {
+        this.toggleSorting(event);
+      },
+      toggleDirection: event => {
+        this.toggleDirection(event);
+      },
+      getBestMovies: () => {
+        this.getBestMovies();
+      },
+      getFilteredMovies: () => {
+        this.getFilteredMovies();
+      },
+      getMoreFilteredMovies: () => {
+        this.getMoreFilteredMovies();
+      },
+      searchFilms: () => {
+        this.searchFilms();
+      },
+      toggleFilmToFav: filmData => {
+        this.toggleFilmToFav(filmData);
+      },
+      loadFilmData: filmId => {
+        this.loadFilmData(filmId);
+      },
+      getSimilarFilms: (filmId, prevFilmId) => {
+        this.getSimilarFilms(filmId, prevFilmId);
+      },
+      changeSearchValue: event => {
+        this.changeSearchValue(event);
+      },
+      clearSearchValue: input => {
+        this.clearSearchValue(input);
+      },
+      enableSearching: () => {
+        this.enableSearching();
+      },
+      disableSearching: () => {
+        this.disableSearching();
+      },
+      toggleMenu: event => {
+        this.toggleMenu(event);
+      },
+      toggleNightMode: event => {
+        this.toggleNightMode(event);
+      }
+    }
+  };
+
+  getSortingOption = () => {
+    let sortBy;
+    if (this.state.sortBy === "popularity") {
+      sortBy =
+        this.state.direction === "descending"
+          ? "popularity.desc"
+          : "popularity.asc";
+    }
+    if (this.state.sortBy === "date") {
+      sortBy =
+        this.state.direction === "descending"
+          ? "release_date.desc"
+          : "release_date.asc";
+    }
+    if (this.state.sortBy === "rating") {
+      sortBy =
+        this.state.direction === "descending"
+          ? "vote_average.desc"
+          : "vote_average.asc";
+    }
+    if (this.state.sortBy === "votes") {
+      sortBy =
+        this.state.direction === "descending"
+          ? "vote_count.desc"
+          : "vote_count.asc";
+    }
+    return sortBy;
   };
 
   getGenres = () => {
-    fetch(
-      "https://api.themoviedb.org/3/genre/movie/list?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US"
-    )
+    fetch(apiQueries.getGenresQuery())
       .then(response => {
         return response.json();
       })
@@ -91,11 +173,7 @@ class App extends Component {
 
   getBestMovies = () => {
     this.setState({ loading: true });
-    fetch(
-      `https://api.themoviedb.org/3/movie/top_rated?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US&page=${
-        this.state.bestMoviesPage
-      }`
-    )
+    fetch(apiQueries.getBestFilmsQuery(this.state.bestMoviesPage))
       .then(response => {
         return response.json();
       })
@@ -111,7 +189,7 @@ class App extends Component {
       });
   };
 
-  getFilteredMovies = debounce(() => {
+  getFilteredMovies = () => {
     this.setState({ loading: true });
     let enabledGenres = [];
     for (let key in this.state.genres) {
@@ -121,36 +199,9 @@ class App extends Component {
     }
     if (enabledGenres.length > 0) {
       let page = 1;
-      let enabledGenreIds = encodeURIComponent(enabledGenres.join(","));
-
-      let sortBy;
-      if (this.state.sortBy === "popularity") {
-        sortBy =
-          this.state.direction === "descending"
-            ? "popularity.desc"
-            : "popularity.asc";
-      }
-      if (this.state.sortBy === "date") {
-        sortBy =
-          this.state.direction === "descending"
-            ? "release_date.desc"
-            : "release_date.asc";
-      }
-      if (this.state.sortBy === "rating") {
-        sortBy =
-          this.state.direction === "descending"
-            ? "vote_average.desc"
-            : "vote_average.asc";
-      }
-      if (this.state.sortBy === "votes") {
-        sortBy =
-          this.state.direction === "descending"
-            ? "vote_count.desc"
-            : "vote_count.asc";
-      }
-      fetch(
-        `https://api.themoviedb.org/3/discover/movie?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US&sort_by=${sortBy}&include_adult=false&include_video=false&page=${page}&with_genres=${enabledGenreIds}`
-      )
+      let genresIds = encodeURIComponent(enabledGenres.join(","));
+      let sortBy = this.getSortingOption();
+      fetch(apiQueries.getFilteredFilmsQuery(sortBy, page, genresIds))
         .then(response => {
           return response.json();
         })
@@ -172,7 +223,7 @@ class App extends Component {
         loading: false
       });
     }
-  }, 1500);
+  };
 
   getMoreFilteredMovies = () => {
     this.setState({ loading: true });
@@ -182,41 +233,14 @@ class App extends Component {
         enabledGenres = [...enabledGenres, this.state.genres[key].id];
       }
     }
-    let enabledGenreIds = encodeURIComponent(enabledGenres.join(",")),
+    let genresIds = encodeURIComponent(enabledGenres.join(",")),
       page = this.state.filteredMoviesPage,
-      sortBy;
-    if (this.state.sortBy === "popularity") {
-      sortBy =
-        this.state.direction === "descending"
-          ? "popularity.desc"
-          : "popularity.asc";
-    }
-    if (this.state.sortBy === "date") {
-      sortBy =
-        this.state.direction === "descending"
-          ? "release_date.desc"
-          : "release_date.asc";
-    }
-    if (this.state.sortBy === "rating") {
-      sortBy =
-        this.state.direction === "descending"
-          ? "vote_average.desc"
-          : "vote_average.asc";
-    }
-    if (this.state.sortBy === "votes") {
-      sortBy =
-        this.state.direction === "descending"
-          ? "vote_count.desc"
-          : "vote_count.asc";
-    }
-    fetch(
-      `https://api.themoviedb.org/3/discover/movie?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US&sort_by=${sortBy}&include_adult=false&include_video=false&page=${++page}&with_genres=${enabledGenreIds}`
-    )
+      sortBy = this.getSortingOption();
+    fetch(apiQueries.getFilteredFilmsQuery(sortBy, ++page, genresIds))
       .then(response => {
         return response.json();
       })
       .then(({ results }) => {
-        console.log(results);
         this.setState(prevState => ({
           filteredMovies: [...prevState.filteredMovies].concat(results),
           filteredMoviesPage: ++prevState.filteredMoviesPage,
@@ -231,11 +255,9 @@ class App extends Component {
   searchFilms = debounce(() => {
     if (this.state.searchValue) {
       this.setState({ loading: true });
-      let query = encodeURIComponent(this.state.searchValue);
+      let string = encodeURIComponent(this.state.searchValue);
       let lang = "en-US";
-      fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=${lang}&query=${query}&page=1&include_adult=false`
-      )
+      fetch(apiQueries.getSearchByStringQuery(lang, string))
         .then(response => {
           return response.json();
         })
@@ -264,9 +286,8 @@ class App extends Component {
     }
   };
 
-  toggleFilmToFav = event => {
-    let filmData = JSON.parse(event.target.value),
-      filmId = filmData.id,
+  toggleFilmToFav = filmData => {
+    let filmId = filmData.id,
       fav = this.state.favorites;
     if (!fav.some(film => film.id === filmId)) {
       let newFav = [{ ...filmData }, ...this.state.favorites];
@@ -279,34 +300,11 @@ class App extends Component {
     }
   };
 
-  /* getFilmById = (event, id) => {
-    if (id !== this.state.filmPage.id) {
-      this.setState({ loading: true });
-      fetch(
-        `https://api.themoviedb.org/3/movie/${id}?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US`
-      )
-        .then(response => {
-          return response.json();
-        })
-        .then(obj => {
-          this.setState({
-            filmPage: obj,
-            loading: false
-          });
-        })
-        .catch(error => {
-          alert(`Error on routing: ${error}`);
-        });
-    } else return;
-  }; */
-
   loadFilmData = filmId => {
     let stateFilmId = this.state.filmData.id;
     if (filmId !== stateFilmId) {
       this.setState({ loading: true, searching: false });
-      fetch(
-        `https://api.themoviedb.org/3/movie/${filmId}?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US`
-      )
+      fetch(apiQueries.getFilmDataQuery(filmId))
         .then(response => {
           return response.json();
         })
@@ -319,47 +317,32 @@ class App extends Component {
     }
   };
 
-  getSimilarFilms = filmId => {
+  getSimilarFilms = (filmId, prevFilmId) => {
     this.setState({ loading: true });
-    let page = this.state.similarFilmsPage;
-    fetch(
-      `https://api.themoviedb.org/3/movie/${filmId}/similar?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US&page=${page}`
-    )
+    let page = filmId === prevFilmId ? this.state.similarFilmsPage + 1 : 1;
+    fetch(apiQueries.getSimilarFilmsQuery(filmId, page))
       .then(response => {
         return response.json();
       })
       .then(({ results }) => {
-        this.setState({ similarFilms: results, loading: false });
+        if (filmId === prevFilmId) {
+          this.setState(prevState => ({
+            similarFilms: [...prevState.similarFilms].concat(results),
+            similarFilmsPage: ++prevState.similarFilmsPage,
+            loading: false
+          }));
+        } else {
+          this.setState({
+            similarFilms: results,
+            similarFilmsPage: 1,
+            loading: false
+          });
+        }
       })
       .catch(error => {
         alert(`Error on fetching similar films: ${error}`);
       });
   };
-
-  getMoreSimilarFilms = filmId => {
-    this.setState({ loading: true });
-    let page = this.state.similarFilmsPage;
-    fetch(
-      `https://api.themoviedb.org/3/movie/${filmId}/similar?api_key=7eab7ddc9f76337597b66b8eae0b15a9&language=en-US&page=${++page}`
-    )
-      .then(response => {
-        return response.json();
-      })
-      .then(({ results }) => {
-        this.setState(prevState => ({
-          similarFilms: [...prevState.similarFilms].concat(results),
-          similarFilmsPage: ++prevState.similarFilmsPage,
-          loading: false
-        }));
-      })
-      .catch(error => {
-        alert(`Error on fetching similar films: ${error}`);
-      });
-  };
-
-  // toggleLoading = () => {
-  //   this.setState(prevState => ({ loading: !prevState }));
-  // };
 
   changeSearchValue = event => {
     event.preventDefault();
@@ -367,12 +350,17 @@ class App extends Component {
     this.setState({ searchValue: value });
   };
 
+  clearSearchValue = input => {
+    input.focus();
+    this.setState({ searchValue: "", matchFilms: null });
+  };
+
   enableSearching = () => {
-    if (!this.state.searching) this.setState({ searching: true });
+    this.setState({ searching: true });
   };
 
   disableSearching = () => {
-    if (this.state.searching) this.setState({ searching: false });
+    this.setState({ searching: false });
   };
 
   toggleMenu = event => {
@@ -394,6 +382,11 @@ class App extends Component {
     });
   };
 
+  autoLoading = (target, func) => {
+    if (target.scrollHeight - (target.scrollTop + target.offsetHeight) < 240)
+      func();
+  };
+
   componentDidMount() {
     this.getGenres();
     this.getFavFilms();
@@ -402,91 +395,30 @@ class App extends Component {
 
   render() {
     return (
-      <Body nightmode={this.state.nightModeIsOn}>
+      <>
         <Helmet
           title={
-            this.state.openedMenuName === "Profile"
+            ~window.location.pathname.indexOf("filmpage")
+              ? this.state.filmData.title
+              : this.state.openedMenuName === "Profile" && this.state.menuIsOpen
               ? "Profile"
               : "Moviesearcher"
           }
         />
-        <WidthContainer>
-          {this.state.loading && (
-            <Loading nightmode={this.state.nightModeIsOn}>Loading...</Loading>
-          )}
-          <Switch>
-            <Route
-              path="/"
-              exact
-              render={props => (
-                <MainHeader
-                  {...props}
-                  {...this.state}
-                  toggleGenre={this.toggleGenre}
-                  toggleSorting={this.toggleSorting}
-                  toggleDirection={this.toggleDirection}
-                  searchFilms={this.searchFilms}
-                  changeSearchValue={this.changeSearchValue}
-                  enableSearching={this.enableSearching}
-                  disableSearching={this.disableSearching}
-                  toggleMenu={this.toggleMenu}
-                  toggleNightMode={this.toggleNightMode}
-                  toggleFilmToFav={this.toggleFilmToFav}
-                  getFilteredMovies={this.getFilteredMovies}
-                />
+        <StateContext.Provider value={this.state}>
+          <Body nightmode={this.state.nightModeIsOn}>
+            <WidthContainer>
+              {this.state.loading && (
+                <Loading nightmode={this.state.nightModeIsOn}>
+                  Loading...
+                </Loading>
               )}
-            />
-            <Route
-              path="/filmpages/"
-              render={props => (
-                <SideHeader
-                  {...props}
-                  {...this.state}
-                  searchFilms={this.searchFilms}
-                  changeSearchValue={this.changeSearchValue}
-                  enableSearching={this.enableSearching}
-                  disableSearching={this.disableSearching}
-                  toggleFilmToFav={this.toggleFilmToFav}
-                  toggleNightMode={this.toggleNightMode}
-                />
-              )}
-            />
-          </Switch>
-          <Switch>
-            <Route
-              path="/"
-              exact
-              render={props => (
-                <Main
-                  {...props}
-                  {...this.state}
-                  toggleFilmToFav={this.toggleFilmToFav}
-                  getMoreFilteredMovies={this.getMoreFilteredMovies}
-                  getBestMovies={this.getBestMovies}
-                />
-              )}
-            />
-            <Route
-              path="/filmpages/"
-              render={props => (
-                <FilmPage
-                  {...props}
-                  favorites={this.state.favorites}
-                  nightmode={this.state.nightModeIsOn}
-                  genres={this.state.genres}
-                  filmData={this.state.filmData}
-                  similarFilms={this.state.similarFilms}
-                  toggleFilmToFav={this.toggleFilmToFav}
-                  loadFilmData={this.loadFilmData}
-                  getSimilarFilms={this.getSimilarFilms}
-                  getMoreSimilarFilms={this.getMoreSimilarFilms}
-                />
-              )}
-            />
-          </Switch>
-          <Footer nightmode={this.state.nightModeIsOn} />
-        </WidthContainer>
-      </Body>
+              <RoutingComponent />
+              <Footer nightmode={this.state.nightModeIsOn} />
+            </WidthContainer>
+          </Body>
+        </StateContext.Provider>
+      </>
     );
   }
 }

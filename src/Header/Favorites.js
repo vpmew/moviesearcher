@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import FilmList from "../UI/FilmList";
-import variables from "../variables";
+import variables from "../utilities/variables";
 
 const FavoritesStructure = ({
   favorites,
@@ -35,24 +35,6 @@ const Favorites = styled(FavoritesStructure)`
     margin: 15px 0;
   }
 
-  & ul {
-    max-height: 360px;
-    overflow-y: scroll;
-    width: 100%;
-    display: flex;
-    flex-flow: row wrap;
-    flex-shrink: 0;
-    padding: 0;
-    box-shadow: none;
-    border: 2px solid
-      ${props =>
-        props.nightmode ? variables.fontColorLight : variables.fontColorDark};
-
-    & li:last-child {
-      border-bottom: none;
-    }
-  }
-
   & .info-message {
     text-align: center;
   }
@@ -80,6 +62,7 @@ const Favorites = styled(FavoritesStructure)`
   @media (min-width: ${variables.widthL}) {
     order: 2;
     width: 45%;
+    margin: 0;
 
     &::after {
       top: 0;

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import variables from "../variables";
+import variables from "../utilities/variables";
 
 const FooterStructure = ({ className }) => {
   return (
@@ -9,15 +9,9 @@ const FooterStructure = ({ className }) => {
         <span>
           App created by <a href="https://vpmew.github.io/usercard/">vpmew</a>.
         </span>
-
         <span>
           Database provided by <a href="https://www.themoviedb.org/">TMDb</a>.
         </span>
-
-        <span className="organisation">
-          Verstka-thread technologies, 2015-2019.
-        </span>
-
         <span className="version">{`Version: ${variables.version}`}</span>
       </p>
     </footer>
@@ -27,6 +21,7 @@ const FooterStructure = ({ className }) => {
 const Footer = styled(FooterStructure)`
   position: relative;
   padding: 20px 0;
+  margin-top: auto;
 
   & p {
     margin: 0;
@@ -38,7 +33,6 @@ const Footer = styled(FooterStructure)`
     margin-bottom: 5px;
   }
 
-  & .organisation,
   & .version {
     font-size: 0.8em;
   }

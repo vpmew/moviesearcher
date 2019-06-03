@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import variables from "../variables";
+import variables from "../utilities/variables";
 
 const UserName = styled.p`
   width: 100%;

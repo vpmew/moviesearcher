@@ -1,19 +1,19 @@
 self.__precacheManifest = [
   {
-    "revision": "9b364a24526d0d23928c",
-    "url": "/moviesearcher/static/css/main.805f0e06.chunk.css"
+    "revision": "344be87830b5ce1ee3b3",
+    "url": "/moviesearcher/static/css/main.72f1289c.chunk.css"
   },
   {
-    "revision": "9b364a24526d0d23928c",
-    "url": "/moviesearcher/static/js/main.9b364a24.chunk.js"
+    "revision": "344be87830b5ce1ee3b3",
+    "url": "/moviesearcher/static/js/main.344be878.chunk.js"
   },
   {
     "revision": "16c3999b2a669e0f0dd7",
     "url": "/moviesearcher/static/js/runtime~main.16c3999b.js"
   },
   {
-    "revision": "55bec8021707f785d70a",
-    "url": "/moviesearcher/static/js/2.55bec802.chunk.js"
+    "revision": "92067a8662ebb5cd7ccd",
+    "url": "/moviesearcher/static/js/2.92067a86.chunk.js"
   },
   {
     "revision": "b5878b221554b8be7824e29f4c279da6",
@@ -32,6 +32,10 @@ self.__precacheManifest = [
     "url": "/moviesearcher/static/media/heart-on.a8f9ebb6.svg"
   },
   {
+    "revision": "e5bc1ca75abcb14a35e19d9293df0336",
+    "url": "/moviesearcher/static/media/default-avatar.e5bc1ca7.jpg"
+  },
+  {
     "revision": "530647122e1a35e5deecc84891f48610",
     "url": "/moviesearcher/static/media/nm-light.53064712.svg"
   },
@@ -48,11 +52,7 @@ self.__precacheManifest = [
     "url": "/moviesearcher/static/media/home-ico-dark.ffa71548.svg"
   },
   {
-    "revision": "e5bc1ca75abcb14a35e19d9293df0336",
-    "url": "/moviesearcher/static/media/default-avatar.e5bc1ca7.jpg"
-  },
-  {
-    "revision": "2412d3b77c48651c779a666ee419c968",
+    "revision": "57283f48b6a0015f9c600e784474dbef",
     "url": "/moviesearcher/index.html"
   }
 ];
