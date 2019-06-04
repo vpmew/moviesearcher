@@ -11,9 +11,12 @@ import apiQueries from "./utilities/apiQueries";
 import RoutingComponent from "./RoutingComponent";
 import StateContext from "./StateContext";
 
+const Error = React.lazy(() => import("./UI/Error"));
+
 class App extends Component {
   state = {
     loading: true,
+    error: { isErrorHappened: false, details: "", message: "" },
 
     userAuthorized: false,
     userAvatar: null,
@@ -100,6 +103,9 @@ class App extends Component {
       },
       toggleNightMode: event => {
         this.toggleNightMode(event);
+      },
+      deleteFilmData: () => {
+        this.deleteFilmData();
       }
     }
   };
@@ -146,7 +152,14 @@ class App extends Component {
         this.setState({ genres: reducedGenres });
       })
       .catch(error => {
-        alert(`Error on fetching genres: ${error}`);
+        this.setState({
+          error: {
+            isErrorHappened: true,
+            details: error,
+            message: "Oops! Failed to load data :("
+          }
+        });
+        console.log("Error on load genres:", error);
       });
   };
 
@@ -185,7 +198,14 @@ class App extends Component {
         }));
       })
       .catch(error => {
-        alert(`Error on fetching best films: ${error}`);
+        this.setState({
+          error: {
+            isErrorHappened: true,
+            details: error,
+            message: "Oops! Failed to load data :("
+          }
+        });
+        console.log("Error on load best movies:", error);
       });
   };
 
@@ -214,7 +234,14 @@ class App extends Component {
           });
         })
         .catch(error => {
-          alert(`Error on getting films by filters: ${error}`);
+          this.setState({
+            error: {
+              isErrorHappened: true,
+              details: error,
+              message: "Oops! Failed to load data :("
+            }
+          });
+          console.log("Error on load filtered movies:", error);
         });
     } else if (enabledGenres.length < 1) {
       this.setState({
@@ -248,7 +275,14 @@ class App extends Component {
         }));
       })
       .catch(error => {
-        alert(`Error on getting additional films by filters: ${error}`);
+        this.setState({
+          error: {
+            isErrorHappened: true,
+            details: error,
+            message: "Oops! Failed to load data :("
+          }
+        });
+        console.log("Error on load additional filtered movies:", error);
       });
   };
 
@@ -269,7 +303,14 @@ class App extends Component {
           });
         })
         .catch(error => {
-          alert(`Error on searching films: ${error}`);
+          this.setState({
+            error: {
+              isErrorHappened: true,
+              details: error,
+              message: "Oops! Failed to load data :("
+            }
+          });
+          console.log("Error on search films:", error);
         });
     }
     if (!this.state.searchValue) {
@@ -312,9 +353,20 @@ class App extends Component {
           this.setState({ filmData: obj, loading: false });
         })
         .catch(error => {
-          alert(`Error on loading film data: ${error}`);
+          this.setState({
+            error: {
+              isErrorHappened: true,
+              details: error,
+              message: "Oops! Failed to load data :("
+            }
+          });
+          console.log("Error on load film data:", error);
         });
     }
+  };
+
+  deleteFilmData = () => {
+    this.setState({ filmData: {} });
   };
 
   getSimilarFilms = (filmId, prevFilmId) => {
@@ -340,7 +392,14 @@ class App extends Component {
         }
       })
       .catch(error => {
-        alert(`Error on fetching similar films: ${error}`);
+        this.setState({
+          error: {
+            isErrorHappened: true,
+            details: error,
+            message: "Oops! Failed to load data :("
+          }
+        });
+        console.log("Error on load similar films:", error);
       });
   };
 
@@ -413,7 +472,10 @@ class App extends Component {
                   Loading...
                 </Loading>
               )}
-              <RoutingComponent />
+              {this.state.error.isErrorHappened && (
+                <Error message={this.state.error.message} />
+              )}
+              {!this.state.error.isErrorHappened && <RoutingComponent />}
               <Footer nightmode={this.state.nightModeIsOn} />
             </WidthContainer>
           </Body>

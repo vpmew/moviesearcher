@@ -41,6 +41,7 @@ const HeaderStructure = ({ className }) => {
               nightmode={nightModeIsOn}
               to="/"
               width="calc(33% / 2)"
+              onClick={methods.deleteFilmData}
               image={nightModeIsOn ? homeIcoLight : homeIcoDark}
             />
             <Button

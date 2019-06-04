@@ -45,6 +45,7 @@ class FilmPageStructure extends React.Component {
     let { className } = this.props;
     let {
       filmData,
+      loading,
       nightModeIsOn,
       favorites,
       similarFilms,
@@ -125,7 +126,7 @@ class FilmPageStructure extends React.Component {
       voteCount = filmData.vote_count;
     }
 
-    return filmData ? (
+    return (filmData && !loading) ? (
       <main className={className}>
         <h2 className="title">{filmData.title || "No title."}</h2>
         {tagline && <Tagline nightmode={nightModeIsOn}>{tagline}</Tagline>}
